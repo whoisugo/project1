@@ -41,17 +41,26 @@ resource "aws_s3_bucket_acl" "b_acl" {
   acl    = "private"
 }
 
-resource "aws_s3_object" "adv-devint-ue-kms-gemini-web-obj" {
-  key                    = "adv-devint-ue-kms-gemini-s3-web"
-  bucket                 = aws_s3_bucket.adv-devint-ue-kms-gemini-web.id
-  server_side_encryption = "AES256"
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "adv-devint-ue-kms-gemini-web-encryption" {
+  bucket = aws_s3_bucket.adv-devint-ue-kms-gemini-web.bucket
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm     = "AES256"
+    }
+  }
 }
 
-resource "aws_s3_object" "adv-devint-ue-kms-general-bucket-obj" {
-  key                    = "adv-devint-ue-kms-gemini-s3-general"
-  bucket                 = aws_s3_bucket.adv-devint-ue-kms-general-bucket.id
-  kms_key_id             = aws_kms_key.adv-devint-ue-kms-gemini-s3.arn
-  server_side_encryption = "aws:kms"
+resource "aws_s3_bucket_server_side_encryption_configuration" "adv-devint-ue-kms-gemini-general-encryption" {
+  bucket = aws_s3_bucket.adv-devint-ue-kms-general-bucket.bucket
+
+  rule {
+    apply_server_side_encryption_by_default {
+      kms_master_key_id = aws_kms_key.adv-devint-ue-kms-gemini-s3.arn
+      sse_algorithm     = "aws:kms"
+    }
+  }
 }
 
 resource "aws_s3_bucket_versioning" "adv-devint-ue-kms-gemini-web-ver" {
